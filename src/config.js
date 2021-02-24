@@ -1,4 +1,3 @@
-// const { serialize } = require('../utils/types')
 const ms = require('ms')
 const { join } = require('path')
 
@@ -31,7 +30,7 @@ const config = {
   },
 
   projectDir() {
-    return join(__dirname, '..', '..')
+    return join(__dirname, '..')
   },
 
   configDir() {
@@ -40,6 +39,10 @@ const config = {
 
   sourceDir() {
     return join(config.projectDir(), 'src')
+  },
+
+  logDir() {
+    return join(config.projectDir(), 'logs')
   },
 
   publicDir() {
@@ -117,6 +120,10 @@ const config = {
   getMilliseconds(name, defaultValue) {
     const value = config.get(name, defaultValue)
     return ms(value)
+  },
+
+  instanceId() {
+    return config.getPositiveInteger('INSTANCE_ID', '0')
   }
 }
 
