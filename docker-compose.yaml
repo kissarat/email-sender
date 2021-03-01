@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  mailhog:
+    container_name: labiak_mailhog
+    image: mailhog/mailhog:latest
+    restart: always
+    networks:
+      - labiak
+    ports:
+      - 1025:1025
+      - 8025:8025
+  email_sender:
+    container_name: labiak_sender
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    networks:
+      - labiak
+    volumes:
+      - ./server:/server
+      - node_modules:/server/node_modules
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=3000
+    command: ./start.sh
+
+networks:
+  labiak:
+    driver: bridge
+
+volumes:
+  node_modules:

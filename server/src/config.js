@@ -1,5 +1,4 @@
-const ms = require('ms')
-const { join } = require('path')
+const { join, normalize } = require('path')
 
 const { readDotEnv } = require('./utils/file')
 
@@ -30,11 +29,7 @@ const config = {
   },
 
   projectDir() {
-    return join(__dirname, '..')
-  },
-
-  configDir() {
-    return join(config.projectDir(), 'modes', config.mode())
+    return normalize(join(__dirname, '..'))
   },
 
   sourceDir() {
@@ -117,19 +112,17 @@ const config = {
     throw new Error(`Invalid boolean value "${string}" for environment variable "${name}"`)
   },
 
-  getMilliseconds(name, defaultValue) {
-    const value = config.get(name, defaultValue)
-    return ms(value)
+  httpPort() {
+    return config.getPort('PORT', '3000')
   },
 
-  instanceId() {
-    return config.getPositiveInteger('INSTANCE_ID', '0')
+  httpHost() {
+    return config.get('HOST', 'localhost')
   }
 }
 
 Object.assign(
   settings,
-  readDotEnv(join(config.configDir(), '.env')) || {},
   readDotEnv(join(config.projectDir(), '.env')) || {},
 )
 

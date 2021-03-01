@@ -1,6 +1,5 @@
 const winston = require('winston');
 const expressWinston = require('express-winston');
-const { logDir } = require('../config');
 
 const logger = winston.createLogger({
     level: 'info',
@@ -9,17 +8,6 @@ const logger = winston.createLogger({
         service: 'log'
     },
     transports: [
-        //
-        // - Write all logs with level `error` and below to `error.log`
-        // - Write all logs with level `info` and below to `combined.log`
-        //
-        new winston.transports.File({
-            filename: `${logDir}/server.error.log`,
-            level: 'error'
-        }),
-        new winston.transports.File({
-            filename: `${logDir}/server.combined.log`
-        }),
     ],
 });
 

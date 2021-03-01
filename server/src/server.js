@@ -2,29 +2,19 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const path = require('path')
 
-const { getWinstonHttpLogger } = require('./server/lib/winston')
-require('./server/lib/axios')
+const { getWinstonHttpLogger } = require('./lib/winston');
+const { httpPort, httpHost } = require('./config');
 
 const app = express();
 
 //parse request to body-parser
 app.use(bodyParser.urlencoded({
-    // extended: true
+    extended: false
 }))
-
-app.use(cookieParser())
-
-app.use(bodyParser.json({ type: 'application/json' }))
-
-//set view engine
-app.set("view engine", "ejs")
 
 app.use(getWinstonHttpLogger())
 
 app.use('/', express.static(path.resolve(__dirname, '..', 'public')))
-
-//load routers
-// app.use('/', require('./server/routes/router'))
 
 app.use(function (err, req, res, next) {
     res
@@ -37,6 +27,6 @@ app.use(function (err, req, res, next) {
 // app.use(getWinstonExpressErrorLogger())
 
 
-server.listen(process.env.PORT, process.env.HOST, function() {
-    console.log(`Server started at http://${process.env.HOST}:${process.env.PORT}`)
+app.listen(httpPort(), httpHost(), function() {
+    console.log(`Server started at http://${httpHost()}:${httpPort()}`)
 })
