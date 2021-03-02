@@ -3,6 +3,7 @@ version: "3"
 services:
   mailhog:
     container_name: labiak_mailhog
+    hostname: labiak_mailhog
     image: mailhog/mailhog:latest
     restart: always
     networks:
@@ -10,8 +11,30 @@ services:
     ports:
       - 1025:1025
       - 8025:8025
+
+  rabbitmq:
+    image: rabbitmq:3.8.12-management-alpine
+    hostname: labiak_rabbitmq
+    container_name: labiak_rabbitmq
+    networks:
+      - labiak
+    volumes:
+        - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+        - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+        - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+    environment:
+        RABBITMQ_ERLANG_COOKIE: labiak_cookie
+        RABBITMQ_DEFAULT_USER: labiak_user
+        RABBITMQ_DEFAULT_PASS: labiak_pass
+    ports:
+        - 5672:5672
+        - 15672:15672
+
   email_sender:
     container_name: labiak_sender
+    depends_on:
+       - rabbitmq
+       - mailhog
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -26,6 +49,9 @@ services:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - PORT=3000
+      - QUEUE_CONNECTION_URL=amqp://labiak_rabbitmq/?user=labiak_user&pass=labiak_pass
+      - SMTP_PORT=1025
+      - SMTP_HOST=labiak_mailhog
     command: ./start.sh
 
 networks:

@@ -15,6 +15,10 @@
         .container {
             max-width: 540px;
         }
+
+        #submit:disabled {
+            opacity: 0.3;
+        }
     </style>
 </head>
 
@@ -22,20 +26,89 @@
     <div class="container">
         <div class="card">
             <h1 class="card-header">Send Email</h1>
-            <form class="card-body" action="/send/email" method="POST">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" class="form-control" placeholder="kissarat@gmail.com">
-                    </div>
-                    <div class="mb-3">
-                        <label for="text" class="form-label">Text</label>
-                        <textarea class="form-control" id="text" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send</button>
+            <form id="form" class="card-body" action="/send/email?redirect=form" method="POST">
+                <div class="mb-3">
+                    <label for="queue" class="form-label">Queue</label>
+                    <input name="queue" type="queue" id="queue" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="from" class="form-label">From</label>
+                    <input name="from" type="from" id="from" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="to" class="form-label">Email</label>
+                    <input name="to" type="to" id="to" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Subject</label>
+                    <input name="subject" type="subject" id="subject" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="text" class="form-label">Text</label>
+                    <textarea name="text" class="form-control" id="text" rows="3"></textarea>
+                </div>
+                <input name="id" type="hidden" id="id">
+                <button id="submit" type="submit" class="btn btn-primary" disabled>Send</button>
+                <button id="save-draft" type="button" class="btn btn-secondary">Save Draft</button>
+                <button id="reset" type="reset" class="btn btn-danger">Reset</button>
             </form>
         </div>
     </div>
-</body>
+    <script>
+        const fields = ['to', 'subject', 'text']
+        addEventListener('DOMContentLoaded', async function () {
+            for(const name of fields) {
+                const input = document.getElementById(name)
+                const value = localStorage.getItem(name)
+                if (input && value) {
+                    input.value = value
+                }
+            }
+            try {
+                const queue = location.hash.slice(1)
+                const queueInput = document.getElementById('queue')
+                if (queue) {
+                    queueInput.value = queue
+                    queueInput.disabled = true
+                }
+                document.getElementById('to').setAttribute('placeholder', atob('dGFyYXMubGFiaWFrQG91dGxvb2suY29t'))
+                document.getElementById('id').value = Date.now().toString(36)
+                const r = await fetch('/config')
+                if (200 === r.status) {
+                    const data = await r.json()
+                    if (1 === data.ok) {
+                        if (data.data.queue && !queueInput.disabled) {
+                            queueInput.value = data.data.queue
+                        }
+                        const fromInput = document.getElementById('from')
+                        if (data.data.sender) {
+                            fromInput.value = data.data.sender
+                        }
+                        fromInput.disabled = false
+                        document.getElementById('submit').disabled = false
+                    }
+                }
+            } catch (err) {
+                console.error(err)
+                document.getElementById('form').innerHTML = `Service is unavailable: ${err.message}`
+            }
+        })
+
+        document.getElementById('save-draft').addEventListener('click', function(e) {
+            for(const name of fields) {
+                const input = document.getElementById(name)
+                if (input) {
+                    localStorage.setItem(name, input.value)
+                }
+            }
+        })
+
+        document.getElementById('reset').addEventListener('click', function(e) {
+            for(const name of fields) {
+                localStorage.removeItem(name)
+            }
+        })
+    </script>
 </body>
 
 </html>

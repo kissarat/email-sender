@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "email_sender",
+            "configurations": ["publisher", "consumer"]
+        }
+    ],
+    "configurations": [
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "publisher",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/server/src/server.js"
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "consumer",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/server/src/sender.js",
+            "env": {
+                "SMTP_PORT": "1025"
+            }
+        }
+    ]
+}

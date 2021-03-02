@@ -1,6 +1,6 @@
 const AMQPClient = require('amqplib')
 
-const { queueConnectionUrl } = require('../config')
+const { queueConnectionUrl } = require('./config')
 
 class Queue {
     constructor(url, name) {
@@ -22,8 +22,9 @@ class Queue {
 
     async publish(message) {
         return this.output.sendToQueue(this.name, Buffer.from(JSON.stringify(message)), {
+            // persistant: true,
             contentType: 'application/json',
-            messageId: message._id.toString()
+            messageId: message.id.toString()
         })
     }
 
@@ -33,7 +34,7 @@ class Queue {
             const message = JSON.parse(json)
             cb(message)
         }, {
-            noAck: true
+            noAck: false
         })
     }
 

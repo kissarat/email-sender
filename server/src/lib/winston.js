@@ -40,5 +40,5 @@ const getWinstonExpressErrorLogger = () => expressWinston.errorLogger({
     )
 })
 
-module.exports = { getWinstonHttpLogger, getWinstonExpressErrorLogger }
+module.exports = { logger, getWinstonHttpLogger, getWinstonExpressErrorLogger }
 

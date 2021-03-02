@@ -118,7 +118,27 @@ const config = {
 
   httpHost() {
     return config.get('HOST', 'localhost')
-  }
+  },
+
+  queueConnectionUrl() {
+    return config.get('QUEUE_CONNECTION_URL', 'amqp://localhost')
+  },
+
+  emailQueue() {
+    return config.get('EMAIL_QUEUE', 'email_queue')
+  },
+
+  smtpHost() {
+    return config.get('SMTP_HOST', 'localhost')
+  },
+
+  smtpPort() {
+    return config.getPort('SMTP_PORT', '587')
+  },
+
+  smtpSender() {
+    return config.get('SMTP_SENDER', 'Taras Labiak <taras.labiak@example.com>')
+  },
 }
 
 Object.assign(

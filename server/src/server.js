@@ -3,7 +3,9 @@ const bodyParser = require('body-parser')
 const path = require('path')
 
 const { getWinstonHttpLogger } = require('./lib/winston');
-const { httpPort, httpHost } = require('./config');
+const { httpPort, httpHost, queueConnectionUrl, emailQueue } = require('./config');
+const { publish, getClientConfig } = require('./handlers');
+const { Queue } = require('./queue');
 
 const app = express();
 
@@ -16,6 +18,9 @@ app.use(getWinstonHttpLogger())
 
 app.use('/', express.static(path.resolve(__dirname, '..', 'public')))
 
+app.get('/config', getClientConfig)
+app.post('/send/email', publish)
+
 app.use(function (err, req, res, next) {
     res
         .status(500)
@@ -27,6 +32,19 @@ app.use(function (err, req, res, next) {
 // app.use(getWinstonExpressErrorLogger())
 
 
-app.listen(httpPort(), httpHost(), function() {
-    console.log(`Server started at http://${httpHost()}:${httpPort()}`)
-})
+async function main() {
+    try {
+        // Connection test to RabbitMQ
+        await Queue.get(emailQueue())
+        console.log(`Connected to ${queueConnectionUrl()} RabbitMQ`)
+    } catch (err) {
+        console.error(`Cannot connect to ${queueConnectionUrl()} RabbitMQ`, err)
+        return
+    }
+
+    app.listen(httpPort(), httpHost(), function () {
+        console.log(`Server started at http://${httpHost()}:${httpPort()}`)
+    })
+}
+
+main()
